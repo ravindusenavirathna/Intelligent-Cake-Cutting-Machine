@@ -1,5 +1,5 @@
-#define stepPin 8
-#define dirPin 9
+#define stepPin 3
+#define dirPin 2
 int step = 2000;
 
 void setup()

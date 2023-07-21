@@ -138,12 +138,10 @@ void ultrasonic_loop()
     int distance1 = sonar1.ping_cm();
     int distance2 = sonar2.ping_cm();
     int distance3 = sonar3.ping_cm();
-    int distance4 = sonar4.ping_cm();
 
     readings1[index] = distance1;
     readings2[index] = distance2;
     readings3[index] = distance3;
-    readings4[index] = distance4;
     index = (index + 1) % NUM_READINGS;
 
     if (index == 0)
@@ -170,12 +168,6 @@ void ultrasonic_loop()
                     readings3[i] = readings3[j];
                     readings3[j] = temp;
                 }
-                if (readings4[j] < readings4[i])
-                {
-                    int temp = readings4[i];
-                    readings4[i] = readings4[j];
-                    readings4[j] = temp;
-                }
             }
         }
 
@@ -187,29 +179,23 @@ void ultrasonic_loop()
         int q3_2 = readings2[q3_index];
         int q1_3 = readings3[q1_index];
         int q3_3 = readings3[q3_index];
-        int q1_4 = readings4[q1_index];
-        int q3_4 = readings4[q3_index];
 
         int iqr1 = q3_1 - q1_1;
         int iqr2 = q3_2 - q1_2;
         int iqr3 = q3_3 - q1_3;
-        int iqr4 = q3_4 - q1_4;
 
         int sum1 = 0;
         int sum2 = 0;
         int sum3 = 0;
-        int sum4 = 0;
         for (int i = 0; i < NUM_READINGS; i++)
         {
             sum1 += readings1[i];
             sum2 += readings2[i];
             sum3 += readings3[i];
-            sum4 += readings4[i];
         }
         float mean1 = (float)sum1 / NUM_READINGS;
         float mean2 = (float)sum2 / NUM_READINGS;
         float mean3 = (float)sum3 / NUM_READINGS;
-        float mean4 = (float)sum4 / NUM_READINGS;
 
         Serial.println("Sensor 1");
         Serial.print("Inter quartile Range: ");
@@ -228,12 +214,6 @@ void ultrasonic_loop()
         Serial.println(iqr3);
         Serial.print("Mean Value: ");
         Serial.println(mean3);
-
-        Serial.println("Sensor 4");
-        Serial.print("Inter quartile Range: ");
-        Serial.println(iqr4);
-        Serial.print("Mean Value: ");
-        Serial.println(mean4);
     }
 
     delay(100);

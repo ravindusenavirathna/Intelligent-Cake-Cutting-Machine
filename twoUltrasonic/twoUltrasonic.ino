@@ -1,6 +1,6 @@
 // Ultrasonic Sensor 1 Pins
-const int trigPin1 = 2; // Trigger pin for sensor 1
-const int echoPin1 = 3; // Echo pin for sensor 1
+const int trigPin1 = 11; // Trigger pin for sensor 1
+const int echoPin1 = 12; // Echo pin for sensor 1
 
 // Ultrasonic Sensor 2 Pins
 const int trigPin2 = 4; // Trigger pin for sensor 2
