@@ -51,9 +51,6 @@ Keypad_I2C keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS, I2CADDR, PCF85
 // display
 LiquidCrystal_I2C lcd(0x27, 16, 4);
 
-// variables
-int step;
-
 void setup()
 {
     Serial.begin(9600);
@@ -147,7 +144,9 @@ void cuttingTypeA()
     Serial.println(slices);
     int cakeLength = sideUltrasonicLoop();
     Serial.println(cakeLength);
-    int stepHorizontal = cakeLength / lengthPerStepHorizontal;
+
+    int oneSliceLength = cakeLength / slices;
+    int stepHorizontal = oneSliceLength / lengthPerStepHorizontal;
     Serial.println(stepHorizontal);
 
     sliceMotor(stepHorizontal, slices);
@@ -167,6 +166,12 @@ void cuttingTypeB()
     Serial.println(cakeWidth);
     int cakeWeight = weightSensorLoop();
     Serial.println(cakeWeight);
+
+    int requiredLength = cakeLength * weight / cakeWeight;
+    int stepHorizontal = requiredLength / lengthPerStepHorizontal;
+    Serial.println(stepHorizontal);
+
+    weightMotor(stepHorizontal);
 }
 
 int enteredSlices()
@@ -405,6 +410,33 @@ void sliceMotor(int stepHorizontal, int slices)
     delay(1000);
 }
 
-void weightMotor()
+void weightMotor(int stepHorizontal)
 {
+    digitalWrite(dirPinHorizontal, HIGH);
+    for (int x = 0; x < stepHorizontal; x++)
+    {
+        digitalWrite(stepPinHorizontal, HIGH);
+        delayMicroseconds(speedHorizontal);
+        digitalWrite(stepPinHorizontal, LOW);
+        delayMicroseconds(speedHorizontal);
+    }
+
+    digitalWrite(dirPinVertical, HIGH);
+    for (int x = 0; x < stepVertical; x++)
+    {
+        digitalWrite(stepPinVertical, HIGH);
+        delayMicroseconds(speedVertical);
+        digitalWrite(stepPinVertical, LOW);
+        delayMicroseconds(speedVertical);
+    }
+    delay(1000);
+
+    digitalWrite(dirPinVertical, LOW);
+    for (int x = 0; x < stepVertical; x++)
+    {
+        digitalWrite(stepPinVertical, HIGH);
+        delayMicroseconds(speedVertical);
+        digitalWrite(stepPinVertical, LOW);
+        delayMicroseconds(speedVertical);
+    }
 }
