@@ -11,9 +11,15 @@
 #define stepPinVertical 8
 #define dirPinVertical 9
 
+#define speedHorizontal 500
+#define speedVertical 800
+
+#define lengthPerStepHorizontal 10 // ################
+#define stepVertical 8             // ################
+
 // ultrasonics
-#define Tw 100 // cake width + front ultrasonic reading
-#define Tl 400 // cake length + side ultrasonic reading
+#define Tw 100 // cake width + front ultrasonic reading ################
+#define Tl 400 // cake length + side ultrasonic reading ################
 
 #define trigFront 11
 #define echoFront 12
@@ -46,7 +52,6 @@ Keypad_I2C keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS, I2CADDR, PCF85
 LiquidCrystal_I2C lcd(0x27, 16, 4);
 
 // variables
-int weight = 0, slices = 0;
 int step;
 
 void setup()
@@ -61,8 +66,6 @@ void setup()
 void loop()
 {
     keypadAndLCDLoop();
-    int cakeWidth = frontUltrasonicLoop();
-    int cakeLength = sideUltrasonicLoop();
 }
 
 void keypadAndLCDSetup()
@@ -140,8 +143,14 @@ void cuttingTypeA()
     lcd.print("-----Type A-----");
     lcd.setCursor(0, 1);
     lcd.print("Slices : ");
-    slices = enteredSlices();
+    int slices = enteredSlices();
     Serial.println(slices);
+    int cakeLength = sideUltrasonicLoop();
+    Serial.println(cakeLength);
+    int stepHorizontal = cakeLength / lengthPerStepHorizontal;
+    Serial.println(stepHorizontal);
+
+    sliceMotor(stepHorizontal, slices);
 }
 
 void cuttingTypeB()
@@ -150,8 +159,57 @@ void cuttingTypeB()
     lcd.print("-----Type B-----");
     lcd.setCursor(0, 1);
     lcd.print("Weight : ");
-    weight = enteredWeight();
+    int weight = enteredWeight();
     Serial.println(weight);
+    int cakeLength = sideUltrasonicLoop();
+    Serial.println(cakeLength);
+    int cakeWidth = frontUltrasonicLoop();
+    Serial.println(cakeWidth);
+    int cakeWeight = weightSensorLoop();
+    Serial.println(cakeWeight);
+}
+
+int enteredSlices()
+{
+    int s = 9;
+    String inputString;
+    int inputInt;
+    while (true)
+    {
+        char key = keypad.getKey();
+        if (key)
+        {
+            if (key >= '0' && key <= '9')
+            {
+                Serial.println(key);
+                lcd.setCursor(s, 1);
+                lcd.print(key);
+                inputString += key;
+            }
+            else if (key == '#')
+            {
+                if (inputString.length() > 0)
+                {
+                    inputInt = inputString.toInt();
+                    inputString = "";
+                    if (inputInt >= 0 && inputInt <= 20)
+                    {
+                        return inputInt;
+                    }
+                    return -1;
+                }
+                return -1;
+            }
+            else if (key == '*')
+            {
+                inputString = "";
+                lcd.setCursor(9, 1);
+                lcd.print("       ");
+                s = 8;
+            }
+            s++;
+        }
+    }
 }
 
 int enteredWeight()
@@ -197,47 +255,10 @@ int enteredWeight()
     }
 }
 
-int enteredSlices()
+int weightSensorLoop()
 {
-    int s = 9;
-    String inputString;
-    int inputInt;
-    while (true)
-    {
-        char key = keypad.getKey();
-        if (key)
-        {
-            if (key >= '0' && key <= '9')
-            {
-                Serial.println(key);
-                lcd.setCursor(s, 1);
-                lcd.print(key);
-                inputString += key;
-            }
-            else if (key == '#')
-            {
-                if (inputString.length() > 0)
-                {
-                    inputInt = inputString.toInt();
-                    inputString = "";
-                    if (inputInt >= 0 && inputInt <= 20)
-                    {
-                        return inputInt;
-                    }
-                    return -1;
-                }
-                return -1;
-            }
-            else if (key == '*')
-            {
-                inputString = "";
-                lcd.setCursor(9, 1);
-                lcd.print("       ");
-                s = 8;
-            }
-            s++;
-        }
-    }
+    int cakeWeight;
+    return cakeWeight;
 }
 
 int frontUltrasonicLoop()
@@ -346,4 +367,44 @@ int sideUltrasonicLoop()
     }
 
     return Tl - sideRead;
+}
+
+void sliceMotor(int stepHorizontal, int slices)
+{
+    for (int i = 0; i < slices; i++)
+    {
+        digitalWrite(dirPinHorizontal, HIGH);
+        for (int x = 0; x < stepHorizontal; x++)
+        {
+            digitalWrite(stepPinHorizontal, HIGH);
+            delayMicroseconds(speedHorizontal);
+            digitalWrite(stepPinHorizontal, LOW);
+            delayMicroseconds(speedHorizontal);
+        }
+
+        digitalWrite(dirPinVertical, HIGH);
+        for (int x = 0; x < stepVertical; x++)
+        {
+            digitalWrite(stepPinVertical, HIGH);
+            delayMicroseconds(speedVertical);
+            digitalWrite(stepPinVertical, LOW);
+            delayMicroseconds(speedVertical);
+        }
+        delay(1000);
+
+        digitalWrite(dirPinVertical, LOW);
+        for (int x = 0; x < stepVertical; x++)
+        {
+            digitalWrite(stepPinVertical, HIGH);
+            delayMicroseconds(speedVertical);
+            digitalWrite(stepPinVertical, LOW);
+            delayMicroseconds(speedVertical);
+        }
+    }
+
+    delay(1000);
+}
+
+void weightMotor()
+{
 }
