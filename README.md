@@ -46,7 +46,7 @@ The Intelligent Cake Cutting Machine is a microcontroller-based project that sim
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/yourusername/IntelligentCakeCuttingMachine.git
+   git clone https://github.com/ravindusenavirathna/IntelligentCakeCuttingMachine.git
 2. **Upload to Arduino**
 
 - Open the code in the Arduino IDE.
