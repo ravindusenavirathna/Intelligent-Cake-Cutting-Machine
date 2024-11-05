@@ -4,7 +4,7 @@ An **Arduino-powered machine** designed to cut cakes into precise, user-defined 
 
 ## Table of Contents
 
-1. [Project Overview](#project-overview)
+1. [**`Project Overview`**](#project-overview)
 2. [Features](#features)
 3. [Components](#components)
 4. [Installation](#installation)
